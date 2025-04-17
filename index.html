@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Room Time Calculator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
       margin: 0;
-      background: #f4f4f4;
+      padding: 20px;
+      background: #f9f9f9;
     }
 
     h2 {
@@ -17,34 +17,30 @@
       margin-bottom: 20px;
     }
 
-    .table-container {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-      width: 100%;
-      min-width: 500px;
-      border-collapse: collapse;
-      background: white;
-      margin: 0 auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    th, td {
+    .room-entry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       padding: 10px;
-      border: 1px solid #ccc;
-      text-align: center;
+      margin-bottom: 15px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      flex-wrap: wrap;
     }
 
-    .room-type {
-      text-align: left;
+    .room-label {
+      flex: 1 1 100%;
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-bottom: 10px;
     }
 
     .input-group {
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 5px;
     }
 
     .input-group input[type="number"] {
@@ -59,19 +55,12 @@
       -moz-appearance: textfield;
     }
 
-    .input-group input::-webkit-outer-spin-button,
-    .input-group input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
     .input-group button {
       background: #ddd;
       border: 1px solid #aaa;
       cursor: pointer;
       padding: 6px 10px;
       font-size: 16px;
-      margin-left: 4px;
       border-radius: 4px;
       transition: background 0.2s;
     }
@@ -80,29 +69,43 @@
       background: #ccc;
     }
 
-    #total-time {
-      font-weight: bold;
-      font-size: 1.2em;
+    .details {
+      margin-top: 8px;
+      font-size: 0.95em;
+      color: #333;
     }
 
-    /* Responsive layout */
-    @media (max-width: 600px) {
-      h2 {
-        font-size: 1.3em;
+    .total-time {
+      margin-top: 30px;
+      padding: 15px;
+      background: #fff;
+      border: 2px solid #4caf50;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.2em;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    @media (min-width: 601px) {
+      .room-entry {
+        flex-wrap: nowrap;
       }
 
-      table {
-        font-size: 0.9em;
+      .room-label {
+        flex: 1;
+        margin-bottom: 0;
       }
 
-      .input-group input[type="number"] {
-        width: 50px;
-        padding: 5px;
+      .input-group {
+        flex: 1;
+        justify-content: center;
       }
 
-      .input-group button {
-        padding: 5px 8px;
-        font-size: 14px;
+      .details {
+        flex: 1;
+        text-align: right;
+        margin-top: 0;
       }
     }
   </style>
@@ -111,64 +114,52 @@
 
   <h2>Room Cleaning Time Calculator</h2>
 
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Room Type</th>
-          <th>Number of Rooms</th>
-          <th>Time per Room</th>
-          <th>Total Time</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="room-type">Stayover</td>
-          <td>
-            <div class="input-group">
-              <input type="number" id="stayover-rooms" value="3" min="0">
-              <button onclick="adjust('stayover-rooms', 1)">+</button>
-              <button onclick="adjust('stayover-rooms', -1)">−</button>
-            </div>
-          </td>
-          <td>00:15:00</td>
-          <td id="stayover-total">01:45:00</td>
-        </tr>
-        <tr>
-          <td class="room-type">Checkout</td>
-          <td>
-            <div class="input-group">
-              <input type="number" id="checkout-rooms" value="7" min="0">
-              <button onclick="adjust('checkout-rooms', 1)">+</button>
-              <button onclick="adjust('checkout-rooms', -1)">−</button>
-            </div>
-          </td>
-          <td>00:28:00</td>
-          <td id="checkout-total">03:16:00</td>
-        </tr>
-        <tr>
-          <td class="room-type">Double Room</td>
-          <td>
-            <div class="input-group">
-              <input type="number" id="double-room-rooms" value="0" min="0">
-              <button onclick="adjust('double-room-rooms', 1)">+</button>
-              <button onclick="adjust('double-room-rooms', -1)">−</button>
-            </div>
-          </td>
-          <td>00:35:00</td>
-          <td id="double-room-total">00:00:00</td>
-        </tr>
-        <tr>
-          <td colspan="3"><strong>Total Time</strong></td>
-          <td id="total-time">05:01:00</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="room-entry">
+    <div class="room-label">Stayover</div>
+    <div class="input-group">
+      <input type="number" id="stayover-rooms" value="3" min="0">
+      <button onclick="adjust('stayover-rooms', 1)">+</button>
+      <button onclick="adjust('stayover-rooms', -1)">−</button>
+    </div>
+    <div class="details">
+      Time/Room: 00:35:00<br>
+      Total: <span id="stayover-total">01:45:00</span>
+    </div>
+  </div>
+
+  <div class="room-entry">
+    <div class="room-label">Checkout</div>
+    <div class="input-group">
+      <input type="number" id="checkout-rooms" value="7" min="0">
+      <button onclick="adjust('checkout-rooms', 1)">+</button>
+      <button onclick="adjust('checkout-rooms', -1)">−</button>
+    </div>
+    <div class="details">
+      Time/Room: 00:28:00<br>
+      Total: <span id="checkout-total">03:16:00</span>
+    </div>
+  </div>
+
+  <div class="room-entry">
+    <div class="room-label">Double Room</div>
+    <div class="input-group">
+      <input type="number" id="double-room-rooms" value="0" min="0">
+      <button onclick="adjust('double-room-rooms', 1)">+</button>
+      <button onclick="adjust('double-room-rooms', -1)">−</button>
+    </div>
+    <div class="details">
+      Time/Room: 00:35:00<br>
+      Total: <span id="double-room-total">00:00:00</span>
+    </div>
+  </div>
+
+  <div class="total-time">
+    Total Time: <span id="total-time">05:01:00</span>
   </div>
 
   <script>
     const inputs = {
-      'stayover-rooms': 15,
+      'stayover-rooms': 35,
       'checkout-rooms': 28,
       'double-room-rooms': 35
     };
