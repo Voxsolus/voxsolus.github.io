@@ -3,25 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <title>Room Time Calculator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
+      margin: 0;
       background: #f4f4f4;
     }
 
     h2 {
       text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     table {
       width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
+      min-width: 500px;
       border-collapse: collapse;
       background: white;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin: 0 auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
     th, td {
@@ -42,15 +49,16 @@
 
     .input-group input[type="number"] {
       width: 60px;
-      padding: 5px;
+      padding: 6px;
       background-color: yellow;
       text-align: center;
       font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
       appearance: textfield;
       -moz-appearance: textfield;
     }
 
-    /* Remove native spinners */
     .input-group input::-webkit-outer-spin-button,
     .input-group input::-webkit-inner-spin-button {
       -webkit-appearance: none;
@@ -61,9 +69,9 @@
       background: #ddd;
       border: 1px solid #aaa;
       cursor: pointer;
-      padding: 5px 8px;
+      padding: 6px 10px;
       font-size: 16px;
-      margin-left: 5px;
+      margin-left: 4px;
       border-radius: 4px;
       transition: background 0.2s;
     }
@@ -77,45 +85,24 @@
       font-size: 1.2em;
     }
 
-    /* Mobile friendly */
+    /* Responsive layout */
     @media (max-width: 600px) {
-      table, thead, tbody, th, td, tr {
-        display: block;
-        width: 100%;
+      h2 {
+        font-size: 1.3em;
       }
 
-      thead {
-        display: none;
+      table {
+        font-size: 0.9em;
       }
 
-      tr {
-        margin-bottom: 15px;
-        background: #fff;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 0 5px rgba(0,0,0,0.1);
-      }
-
-      td {
-        border: none;
-        padding: 12px 15px;
-        text-align: left;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      td::before {
-        content: attr(data-label);
-        font-weight: bold;
-      }
-
-      .input-group {
-        justify-content: flex-end;
-      }
-
-      .input-group input {
+      .input-group input[type="number"] {
         width: 50px;
+        padding: 5px;
+      }
+
+      .input-group button {
+        padding: 5px 8px;
+        font-size: 14px;
       }
     }
   </style>
@@ -124,58 +111,60 @@
 
   <h2>Room Cleaning Time Calculator</h2>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Room Type</th>
-        <th>Number of Rooms</th>
-        <th>Time per Room</th>
-        <th>Total Time</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="room-type" data-label="Room Type">Stayover</td>
-        <td data-label="Number of Rooms">
-          <div class="input-group">
-            <input type="number" id="stayover-rooms" value="3" min="0" step="1">
-            <button onclick="adjust('stayover-rooms', 1)">+</button>
-            <button onclick="adjust('stayover-rooms', -1)">−</button>
-          </div>
-        </td>
-        <td data-label="Time per Room">00:15:00</td>
-        <td data-label="Total Time" id="stayover-total">01:45:00</td>
-      </tr>
-      <tr>
-        <td class="room-type" data-label="Room Type">Checkout</td>
-        <td data-label="Number of Rooms">
-          <div class="input-group">
-            <input type="number" id="checkout-rooms" value="7" min="0" step="1">
-            <button onclick="adjust('checkout-rooms', 1)">+</button>
-            <button onclick="adjust('checkout-rooms', -1)">−</button>
-          </div>
-        </td>
-        <td data-label="Time per Room">00:28:00</td>
-        <td data-label="Total Time" id="checkout-total">03:16:00</td>
-      </tr>
-      <tr>
-        <td class="room-type" data-label="Room Type">Double Room</td>
-        <td data-label="Number of Rooms">
-          <div class="input-group">
-            <input type="number" id="double-room-rooms" value="0" min="0" step="1">
-            <button onclick="adjust('double-room-rooms', 1)">+</button>
-            <button onclick="adjust('double-room-rooms', -1)">−</button>
-          </div>
-        </td>
-        <td data-label="Time per Room">00:35:00</td>
-        <td data-label="Total Time" id="double-room-total">00:00:00</td>
-      </tr>
-      <tr>
-        <td colspan="3" data-label="Total"><strong>Total Time</strong></td>
-        <td id="total-time">05:01:00</td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Room Type</th>
+          <th>Number of Rooms</th>
+          <th>Time per Room</th>
+          <th>Total Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="room-type">Stayover</td>
+          <td>
+            <div class="input-group">
+              <input type="number" id="stayover-rooms" value="3" min="0">
+              <button onclick="adjust('stayover-rooms', 1)">+</button>
+              <button onclick="adjust('stayover-rooms', -1)">−</button>
+            </div>
+          </td>
+          <td>00:15:00</td>
+          <td id="stayover-total">01:45:00</td>
+        </tr>
+        <tr>
+          <td class="room-type">Checkout</td>
+          <td>
+            <div class="input-group">
+              <input type="number" id="checkout-rooms" value="7" min="0">
+              <button onclick="adjust('checkout-rooms', 1)">+</button>
+              <button onclick="adjust('checkout-rooms', -1)">−</button>
+            </div>
+          </td>
+          <td>00:28:00</td>
+          <td id="checkout-total">03:16:00</td>
+        </tr>
+        <tr>
+          <td class="room-type">Double Room</td>
+          <td>
+            <div class="input-group">
+              <input type="number" id="double-room-rooms" value="0" min="0">
+              <button onclick="adjust('double-room-rooms', 1)">+</button>
+              <button onclick="adjust('double-room-rooms', -1)">−</button>
+            </div>
+          </td>
+          <td>00:35:00</td>
+          <td id="double-room-total">00:00:00</td>
+        </tr>
+        <tr>
+          <td colspan="3"><strong>Total Time</strong></td>
+          <td id="total-time">05:01:00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <script>
     const inputs = {
@@ -213,12 +202,12 @@
       updateTimes();
     }
 
-    // Update on direct typing too
+    // Trigger update on input change
     Object.keys(inputs).forEach(id => {
       document.getElementById(id).addEventListener('input', updateTimes);
     });
 
-    updateTimes(); // Initial load
+    updateTimes();
   </script>
 
 </body>
