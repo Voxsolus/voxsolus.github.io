@@ -52,7 +52,6 @@
       border: 1px solid #ccc;
       border-radius: 4px;
       appearance: textfield;
-      -moz-appearance: textfield;
     }
 
     .input-group button {
@@ -87,6 +86,52 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
+    #custom-section {
+      margin-top: 30px;
+    }
+
+    .custom-controls {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .custom-controls button {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .delete-btn {
+      background: #ff4d4d;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+
+    .delete-btn:hover {
+      background: #e60000;
+    }
+
+    .custom-room .time-input {
+      background-color: yellow;
+      font-size: 1.1em;
+      font-weight: bold;
+      padding: 4px 8px;
+      border: 2px solid #aaa;
+      border-radius: 4px;
+      width: 70px;
+      text-align: center;
+    }
+
     @media (min-width: 601px) {
       .room-entry {
         flex-wrap: nowrap;
@@ -114,6 +159,7 @@
 
   <h2>Room Cleaning Time Calculator</h2>
 
+  <!-- Fixed rooms -->
   <div class="room-entry">
     <div class="room-label">Stayover</div>
     <div class="input-group">
@@ -123,7 +169,7 @@
     </div>
     <div class="details">
       Time/Room: 00:15:00<br>
-      Total: <span id="stayover-total">01:45:00</span>
+      Total: <span id="stayover-total">00:45:00</span>
     </div>
   </div>
 
@@ -153,6 +199,15 @@
     </div>
   </div>
 
+  <!-- Custom room section -->
+  <div id="custom-section">
+    <div class="custom-controls">
+      <button onclick="addCustomRoom()">+ Add Custom Room</button>
+    </div>
+    <div id="custom-rooms"></div>
+  </div>
+
+  <!-- Total -->
   <div class="total-time">
     Total Time: <span id="total-time">05:01:00</span>
   </div>
@@ -163,6 +218,12 @@
       'checkout-rooms': 28,
       'double-room-rooms': 35
     };
+
+    function convertMinutesToTime(mins) {
+      const hours = Math.floor(mins / 60);
+      const minutes = mins % 60;
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+    }
 
     function updateTimes() {
       let totalMinutes = 0;
@@ -176,13 +237,21 @@
         document.getElementById(totalId).textContent = convertMinutesToTime(minutes);
       }
 
-      document.getElementById('total-time').textContent = convertMinutesToTime(totalMinutes);
-    }
+      document.querySelectorAll('.custom-room').forEach(div => {
+        const countInput = div.querySelector('.room-count');
+        const timeInput = div.querySelector('.time-input');
+        const totalSpan = div.querySelector('.custom-total');
 
-    function convertMinutesToTime(mins) {
-      const hours = Math.floor(mins / 60);
-      const minutes = mins % 60;
-      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+        const count = parseInt(countInput.value) || 0;
+        const timeParts = timeInput.value.split(':');
+        const mins = parseInt(timeParts[0] || 0) * 60 + parseInt(timeParts[1] || 0);
+        const total = count * mins;
+
+        totalMinutes += total;
+        totalSpan.textContent = convertMinutesToTime(total);
+      });
+
+      document.getElementById('total-time').textContent = convertMinutesToTime(totalMinutes);
     }
 
     function adjust(id, amount) {
@@ -193,10 +262,44 @@
       updateTimes();
     }
 
-    // Trigger update on input change
     Object.keys(inputs).forEach(id => {
       document.getElementById(id).addEventListener('input', updateTimes);
     });
+
+    function addCustomRoom() {
+      const container = document.createElement('div');
+      container.className = 'room-entry custom-room';
+
+      container.innerHTML = `
+        <div class="room-label">
+          <input type="text" placeholder="Custom Room Name" style="font-size:1em;">
+        </div>
+        <div class="input-group">
+          <input type="number" class="room-count" value="0" min="0">
+          <button onclick="this.parentElement.querySelector('.room-count').stepUp(); updateTimes();">+</button>
+          <button onclick="this.parentElement.querySelector('.room-count').stepDown(); updateTimes();">−</button>
+        </div>
+        <div class="details">
+          Time/Room:
+          <input type="text" class="time-input" value="00:30"> <br>
+          Total: <span class="custom-total">00:00:00</span> <br>
+          <button class="delete-btn" onclick="deleteCustomRoom(this)">Delete</button>
+        </div>
+      `;
+
+      container.querySelectorAll('input').forEach(el => {
+        el.addEventListener('input', updateTimes);
+      });
+
+      document.getElementById('custom-rooms').appendChild(container);
+      updateTimes();
+    }
+
+    function deleteCustomRoom(button) {
+      const room = button.closest('.custom-room');
+      room.remove();
+      updateTimes();
+    }
 
     updateTimes();
   </script>
