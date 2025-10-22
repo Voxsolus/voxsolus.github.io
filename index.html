@@ -5,27 +5,90 @@
   <title>Room Time Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    /* Base Styles */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 20px;
       background: #f9f9f9;
+      color: #000;
+      transition: background 0.3s, color 0.3s;
     }
 
     h2 {
       text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
     }
 
-    /* Banner section */
-    .banner-section {
+    /* Toggle Switch Container */
+    .toggle-container {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle-container label {
+      font-size: 0.9em;
+      font-weight: bold;
+    }
+
+    /* Toggle Switch Styling */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #4caf50;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    /* Banner Styling */
+    .banner {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
 
-    .banner-section img {
+    .banner img {
       max-width: 100%;
-      height: auto;
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
@@ -41,6 +104,7 @@
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       flex-wrap: wrap;
+      transition: background 0.3s, color 0.3s;
     }
 
     .room-label {
@@ -84,7 +148,6 @@
     .details {
       margin-top: 8px;
       font-size: 0.95em;
-      color: #333;
     }
 
     .total-time {
@@ -97,8 +160,10 @@
       font-weight: bold;
       font-size: 1.2em;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background 0.3s, color 0.3s;
     }
 
+    /* Custom Room Controls */
     #custom-section {
       margin-top: 30px;
     }
@@ -162,10 +227,34 @@
       cursor: pointer;
     }
 
-    .reset-controls label {
-      display: block;
-      margin-top: 10px;
-      font-size: 0.95em;
+    /* Dark Mode Styles */
+    body.dark {
+      background: #1f1f1f;
+      color: #eee;
+    }
+
+    body.dark .room-entry {
+      background: #2b2b2b;
+      border-color: #444;
+    }
+
+    body.dark .total-time {
+      background: #333;
+      border-color: #66bb6a;
+    }
+
+    body.dark .input-group button {
+      background: #555;
+      border-color: #777;
+      color: #eee;
+    }
+
+    body.dark .custom-controls button {
+      background: #388e3c;
+    }
+
+    body.dark .delete-btn {
+      background: #c62828;
     }
 
     @media (min-width: 601px) {
@@ -189,13 +278,20 @@
   </style>
 </head>
 <body>
+  <!-- Dark/Light Mode Toggle -->
+  <div class="toggle-container">
+    <label>Dark Mode</label>
+    <label class="switch">
+      <input type="checkbox" id="theme-toggle">
+      <span class="slider"></span>
+    </label>
+  </div>
 
   <h2>Room Cleaning Time Calculator</h2>
 
-  <!-- Banner Section -->
-  <div class="banner-section">
-    <!-- 🔽 Change the URL below to your image or GIF -->
-    <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWl2N20wdnQwNm45eHU1NHQ3bmhxdzZ6c245eGkxcGYyOHptMXd5dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/gs9ijnF0J34W6mCMBB/giphy.gif" alt="Banner Image">
+  <!-- Banner -->
+  <div class="banner">
+    <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWl2N20wdnQwNm45eHU1NHQ3bmhxdzZ6c245eGkxcGYyOHptMXd5dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/gs9ijnF0J34W6mCMBB/giphy.gif" alt="Cleaning Banner">
   </div>
 
   <!-- Fixed Rooms -->
@@ -254,7 +350,7 @@
     Total Time: <span id="total-time">00:00:00</span>
   </div>
 
-  <!-- Reset Button -->
+  <!-- Reset -->
   <div class="reset-controls">
     <button onclick="resetAll()">Reset</button>
   </div>
@@ -295,6 +391,7 @@
       });
 
       document.getElementById('total-time').textContent = convertMinutesToTime(totalMinutes);
+
       if (save) saveData();
     }
 
@@ -304,10 +401,6 @@
       input.value = Math.max(0, value + amount);
       updateTimes();
     }
-
-    Object.keys(inputs).forEach(id => {
-      document.getElementById(id).addEventListener('input', updateTimes);
-    });
 
     function addCustomRoom(name = '', count = 0, time = '00:30') {
       const div = document.createElement('div');
@@ -352,14 +445,17 @@
     function loadData() {
       const saved = JSON.parse(localStorage.getItem('roomData'));
       if (!saved) return;
+
       Object.keys(saved.fixed).forEach(id => {
         if (document.getElementById(id)) {
           document.getElementById(id).value = saved.fixed[id];
         }
       });
+
       saved.custom.forEach(room => {
         addCustomRoom(room.name, room.count, room.time);
       });
+
       updateTimes(false);
     }
 
@@ -367,10 +463,32 @@
       Object.keys(inputs).forEach(id => {
         document.getElementById(id).value = 0;
       });
+
       if (!document.getElementById('preserve-custom').checked) {
         document.getElementById('custom-rooms').innerHTML = '';
       }
+
       updateTimes();
+    }
+
+    // === Theme Toggle Logic ===
+    const toggle = document.getElementById('theme-toggle');
+    const body = document.body;
+
+    toggle.addEventListener('change', () => {
+      if (toggle.checked) {
+        body.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+    });
+
+    // Load saved theme
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.add('dark');
+      toggle.checked = true;
     }
 
     loadData();
