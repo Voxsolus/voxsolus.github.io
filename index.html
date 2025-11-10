@@ -81,7 +81,7 @@
       transform: translateX(24px);
     }
 
-    /* Banner Styling */
+    /* Banner Styling (keeps original structure + decorative elements inside it) */
     .banner {
       text-align: center;
       margin-bottom: 20px;
@@ -93,6 +93,55 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
+    /* Decorative birthday content inside banner - added */
+    .birthday-banner {
+      padding: 18px;
+      border-radius: 10px;
+      background: linear-gradient(135deg,#ffecd2 0%, #fcb69f 100%);
+      color: #1b1b1b;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      display: inline-block;
+      min-width: 280px;
+    }
+
+    .birthday-title {
+      font-size: 1.4rem;
+      margin: 0 0 8px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .birthday-countdown {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    /* small confetti pieces — limited and lightweight */
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 10px;
+      opacity: 0.95;
+      transform-origin: center;
+      pointer-events: none;
+      will-change: transform, opacity;
+      animation: confetti-fall linear infinite;
+    }
+
+    @keyframes confetti-fall {
+      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(220px) rotate(360deg); opacity: 0; }
+    }
+
+    /* Room entry & rest of your original CSS kept exactly as provided */
     .room-entry {
       display: flex;
       align-items: center;
@@ -289,9 +338,13 @@
 
   <h2>Room Cleaning Time Calculator</h2>
 
-  <!-- Banner -->
+  <!-- Banner (original container preserved) -->
   <div class="banner">
-    <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWl2N20wdnQwNm45eHU1NHQ3bmhxdzZ6c245eGkxcGYyOHptMXd5dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/gs9ijnF0J34W6mCMBB/giphy.gif" alt="Cleaning Banner">
+    <!-- Added decorative birthday content inside the banner while keeping original banner container -->
+    <div class="birthday-banner" aria-live="polite">
+      <div class="birthday-title">🎉 Birthday Soon Tracy! 🎂</div>
+      <div class="birthday-countdown" id="birthday-countdown">Loading countdown…</div>
+    </div>
   </div>
 
   <!-- Fixed Rooms -->
@@ -491,7 +544,67 @@
       toggle.checked = true;
     }
 
+    // === Birthday Countdown (non-invasive) ===
+    function startBirthdayCountdown() {
+      const target = new Date("December 3, 2025 00:00:00").getTime();
+      const display = document.getElementById('birthday-countdown');
+
+      // single interval to update clock
+      const tick = () => {
+        const now = Date.now();
+        const diff = target - now;
+
+        if (diff <= 0) {
+          display.textContent = "🎈 It's Tracy's Birthday Today! 🎁";
+          // Stop further showing negative time
+          return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        // Decorative formatting but compact to avoid layout shifts
+        display.textContent = `${days}d ${String(hours).padStart(2,'0')}h ${String(minutes).padStart(2,'0')}m ${String(seconds).padStart(2,'0')}s`;
+      };
+
+      tick(); // immediate
+      const intervalId = setInterval(() => {
+        // If countdown is over, clear interval
+        if (Date.now() >= target) {
+          clearInterval(intervalId);
+        }
+        tick();
+      }, 1000);
+
+      // Lightweight confetti generation inside banner — small number and non-invasive
+      const banner = document.querySelector('.birthday-banner');
+      if (!banner) return;
+      const colors = ['#ff4d4d','#ffd700','#00e6e6','#ff66cc','#99ff33'];
+      for (let i = 0; i < 14; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti-piece';
+        c.style.backgroundColor = colors[i % colors.length];
+        c.style.left = (5 + Math.random() * 90) + '%';
+        c.style.top = (-5 - Math.random() * 30) + 'px';
+        c.style.width = (6 + Math.random() * 8) + 'px';
+        c.style.height = (8 + Math.random() * 10) + 'px';
+        c.style.borderRadius = (Math.random() > 0.5 ? '2px' : '50%');
+        c.style.animationDuration = (2.5 + Math.random() * 2.5) + 's';
+        c.style.animationDelay = (Math.random() * 2) + 's';
+        banner.appendChild(c);
+
+        // remove after animation (cleanup)
+        setTimeout(() => {
+          c.remove();
+        }, 8000);
+      }
+    }
+
+    // Ensure original loadData and updateTimes happen before adding countdown so times are correct immediately
     loadData();
+    startBirthdayCountdown();
   </script>
 </body>
 </html>
