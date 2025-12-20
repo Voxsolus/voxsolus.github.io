@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Housekeeping Hub</title>
+  <title>Room Time Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     /* Base Styles */
@@ -95,15 +95,16 @@
 
     /* Decorative birthday content inside banner - added */
     .birthday-banner {
-      padding: 18px;
-      border-radius: 10px;
-      background: linear-gradient(135deg,#ffecd2 0%, #fcb69f 100%);
-      color: #1b1b1b;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-      display: inline-block;
-      min-width: 280px;
+	padding: 18px;
+	border-radius: 10px;
+	background: linear-gradient(135deg, #b71c1c 0%, #1b5e20 100%);
+	color: #ffffff;
+	position: relative;
+	overflow: hidden;
+	box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+	display: inline-block;
+	min-width: 280px;
+}
     }
 
     .birthday-title {
@@ -336,15 +337,15 @@
     </label>
   </div>
 
-  <h2>Housekeeping Hub</h2>
+  <h2>Room Cleaning Time Calculator</h2>
 
   <!-- Banner (original container preserved) -->
   <div class="banner">
     <!-- Added decorative birthday content inside the banner while keeping original banner container -->
-    <div class="birthday-banner" aria-live="polite">
-      <div class="birthday-title">🎉 Birthday Soon Tracy! 🎂</div>
-      <div class="birthday-countdown" id="birthday-countdown">Loading countdown…</div>
-    </div>
+<div class="birthday-banner" aria-live="polite">
+  <div class="birthday-title">🎄 Merry Christmas 🎄</div>
+  <div class="birthday-countdown" id="birthday-countdown">Loading countdown…</div>
+</div>
   </div>
 
   <!-- Fixed Rooms -->
@@ -546,7 +547,7 @@
 
     // === Birthday Countdown (non-invasive) ===
     function startBirthdayCountdown() {
-      const target = new Date("December 3, 2025 00:00:00").getTime();
+      const target = new Date("December 25, 2025 00:00:00").getTime();
       const display = document.getElementById('birthday-countdown');
 
       // single interval to update clock
@@ -555,7 +556,7 @@
         const diff = target - now;
 
         if (diff <= 0) {
-          display.textContent = "🎈 It's Tracy's Birthday Today! 🎁";
+          display.textContent = "It's Christmas Day Today! 🎁";
           // Stop further showing negative time
           return;
         }
@@ -581,7 +582,7 @@
       // Lightweight confetti generation inside banner — small number and non-invasive
       const banner = document.querySelector('.birthday-banner');
       if (!banner) return;
-      const colors = ['#ff4d4d','#ffd700','#00e6e6','#ff66cc','#99ff33'];
+      const colors = ['#ffffff', '#c62828', '#2e7d32', '#ffd700'];
       for (let i = 0; i < 14; i++) {
         const c = document.createElement('div');
         c.className = 'confetti-piece';
@@ -608,5 +609,3 @@
   </script>
 </body>
 </html>
-
-
