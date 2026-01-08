@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Room Time Calculator</title>
+  <title>Housekeeping Hub</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     /* Base Styles */
@@ -52,10 +52,7 @@
     .slider {
       position: absolute;
       cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       background-color: #ccc;
       transition: 0.4s;
       border-radius: 34px;
@@ -81,68 +78,7 @@
       transform: translateX(24px);
     }
 
-    /* Banner Styling (keeps original structure + decorative elements inside it) */
-    .banner {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .banner img {
-      max-width: 100%;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-
-    /* Decorative birthday content inside banner - added */
-    .birthday-banner {
-	padding: 18px;
-	border-radius: 10px;
-	background: linear-gradient(135deg, #b71c1c 0%, #1b5e20 100%);
-	color: #ffffff;
-	position: relative;
-	overflow: hidden;
-	box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-	display: inline-block;
-	min-width: 280px;
-}
-    }
-
-    .birthday-title {
-      font-size: 1.4rem;
-      margin: 0 0 8px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .birthday-countdown {
-      display: block;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-
-    /* small confetti pieces — limited and lightweight */
-    .confetti-piece {
-      position: absolute;
-      width: 8px;
-      height: 10px;
-      opacity: 0.95;
-      transform-origin: center;
-      pointer-events: none;
-      will-change: transform, opacity;
-      animation: confetti-fall linear infinite;
-    }
-
-    @keyframes confetti-fall {
-      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(220px) rotate(360deg); opacity: 0; }
-    }
-
-    /* Room entry & rest of your original CSS kept exactly as provided */
+    /* Room entry */
     .room-entry {
       display: flex;
       align-items: center;
@@ -328,6 +264,7 @@
   </style>
 </head>
 <body>
+
   <!-- Dark/Light Mode Toggle -->
   <div class="toggle-container">
     <label>Dark Mode</label>
@@ -337,16 +274,7 @@
     </label>
   </div>
 
-  <h2>Room Cleaning Time Calculator</h2>
-
-  <!-- Banner (original container preserved) -->
-  <div class="banner">
-    <!-- Added decorative birthday content inside the banner while keeping original banner container -->
-<div class="birthday-banner" aria-live="polite">
-  <div class="birthday-title">🎄 Merry Christmas 🎄</div>
-  <div class="birthday-countdown" id="birthday-countdown">Loading countdown…</div>
-</div>
-  </div>
+  <h2>Housekeeping Hub</h2>
 
   <!-- Fixed Rooms -->
   <div class="room-entry">
@@ -419,7 +347,7 @@
     function convertMinutesToTime(mins) {
       const hours = Math.floor(mins / 60);
       const minutes = mins % 60;
-      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+      return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:00`;
     }
 
     function updateTimes(save = true) {
@@ -429,183 +357,89 @@
         const value = parseInt(document.getElementById(id).value) || 0;
         const minutes = value * inputs[id];
         totalMinutes += minutes;
-
-        const totalId = id.replace('rooms', 'total');
-        document.getElementById(totalId).textContent = convertMinutesToTime(minutes);
+        document.getElementById(id.replace('rooms','total')).textContent = convertMinutesToTime(minutes);
       }
 
-      document.querySelectorAll('.custom-room').forEach((div) => {
+      document.querySelectorAll('.custom-room').forEach(div => {
         const count = parseInt(div.querySelector('.room-count').value) || 0;
-        const time = div.querySelector('.time-input').value;
-        const parts = time.split(':');
-        const mins = parseInt(parts[0] || 0) * 60 + parseInt(parts[1] || 0);
+        const [h,m] = div.querySelector('.time-input').value.split(':');
+        const mins = (parseInt(h)||0)*60 + (parseInt(m)||0);
         const total = count * mins;
         totalMinutes += total;
         div.querySelector('.custom-total').textContent = convertMinutesToTime(total);
       });
 
       document.getElementById('total-time').textContent = convertMinutesToTime(totalMinutes);
-
       if (save) saveData();
     }
 
-    function adjust(id, amount) {
-      const input = document.getElementById(id);
-      let value = parseInt(input.value) || 0;
-      input.value = Math.max(0, value + amount);
+    function adjust(id, amt) {
+      const el = document.getElementById(id);
+      el.value = Math.max(0,(parseInt(el.value)||0)+amt);
       updateTimes();
     }
 
-    function addCustomRoom(name = '', count = 0, time = '00:30') {
+    function addCustomRoom(name='',count=0,time='00:30') {
       const div = document.createElement('div');
-      div.className = 'room-entry custom-room';
+      div.className='room-entry custom-room';
       div.innerHTML = `
-        <div class="room-label">
-          <input type="text" placeholder="Custom Room Name" value="${name}">
-        </div>
+        <div class="room-label"><input type="text" value="${name}" placeholder="Custom Room Name"></div>
         <div class="input-group">
           <input type="number" class="room-count" value="${count}" min="0">
-          <button onclick="this.previousElementSibling.stepUp(); updateTimes();">+</button>
-          <button onclick="this.previousElementSibling.stepDown(); updateTimes();">−</button>
+          <button onclick="this.previousElementSibling.stepUp();updateTimes()">+</button>
+          <button onclick="this.previousElementSibling.stepDown();updateTimes()">−</button>
         </div>
         <div class="details">
-          Time/Room: <input class="time-input" value="${time}" type="text"><br>
+          Time/Room: <input class="time-input" value="${time}"><br>
           Total: <span class="custom-total">00:00:00</span><br>
-          <button class="delete-btn" onclick="this.closest('.custom-room').remove(); updateTimes();">Delete</button>
-        </div>
-      `;
-      div.querySelectorAll('input').forEach(input => input.addEventListener('input', updateTimes));
+          <button class="delete-btn" onclick="this.closest('.custom-room').remove();updateTimes()">Delete</button>
+        </div>`;
+      div.querySelectorAll('input').forEach(i=>i.addEventListener('input',updateTimes));
       document.getElementById('custom-rooms').appendChild(div);
       updateTimes();
     }
 
     function saveData() {
-      const fixed = {};
-      Object.keys(inputs).forEach(id => {
-        fixed[id] = document.getElementById(id).value;
+      const fixed={}, custom=[];
+      Object.keys(inputs).forEach(id=>fixed[id]=document.getElementById(id).value);
+      document.querySelectorAll('.custom-room').forEach(div=>{
+        custom.push({
+          name: div.querySelector('input[type=text]').value,
+          count: div.querySelector('.room-count').value,
+          time: div.querySelector('.time-input').value
+        });
       });
-
-      const custom = [];
-      document.querySelectorAll('.custom-room').forEach(div => {
-        const name = div.querySelector('input[type="text"]').value;
-        const count = div.querySelector('.room-count').value;
-        const time = div.querySelector('.time-input').value;
-        custom.push({ name, count, time });
-      });
-
-      localStorage.setItem('roomData', JSON.stringify({ fixed, custom }));
+      localStorage.setItem('roomData',JSON.stringify({fixed,custom}));
     }
 
     function loadData() {
-      const saved = JSON.parse(localStorage.getItem('roomData'));
-      if (!saved) return;
-
-      Object.keys(saved.fixed).forEach(id => {
-        if (document.getElementById(id)) {
-          document.getElementById(id).value = saved.fixed[id];
-        }
-      });
-
-      saved.custom.forEach(room => {
-        addCustomRoom(room.name, room.count, room.time);
-      });
-
+      const data = JSON.parse(localStorage.getItem('roomData'));
+      if (!data) return;
+      Object.keys(data.fixed).forEach(id=>document.getElementById(id).value=data.fixed[id]);
+      data.custom.forEach(r=>addCustomRoom(r.name,r.count,r.time));
       updateTimes(false);
     }
 
     function resetAll() {
-      Object.keys(inputs).forEach(id => {
-        document.getElementById(id).value = 0;
-      });
-
+      Object.keys(inputs).forEach(id=>document.getElementById(id).value=0);
       if (!document.getElementById('preserve-custom').checked) {
-        document.getElementById('custom-rooms').innerHTML = '';
+        document.getElementById('custom-rooms').innerHTML='';
       }
-
       updateTimes();
     }
 
-    // === Theme Toggle Logic ===
-    const toggle = document.getElementById('theme-toggle');
-    const body = document.body;
-
-    toggle.addEventListener('change', () => {
-      if (toggle.checked) {
-        body.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        body.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-      }
+    const toggle=document.getElementById('theme-toggle');
+    toggle.addEventListener('change',()=>{
+      document.body.classList.toggle('dark',toggle.checked);
+      localStorage.setItem('theme',toggle.checked?'dark':'light');
     });
 
-    // Load saved theme
-    if (localStorage.getItem('theme') === 'dark') {
-      body.classList.add('dark');
-      toggle.checked = true;
+    if (localStorage.getItem('theme')==='dark') {
+      document.body.classList.add('dark');
+      toggle.checked=true;
     }
 
-    // === Birthday Countdown (non-invasive) ===
-    function startBirthdayCountdown() {
-      const target = new Date("December 25, 2025 00:00:00").getTime();
-      const display = document.getElementById('birthday-countdown');
-
-      // single interval to update clock
-      const tick = () => {
-        const now = Date.now();
-        const diff = target - now;
-
-        if (diff <= 0) {
-          display.textContent = "It's Christmas Day Today! 🎁";
-          // Stop further showing negative time
-          return;
-        }
-
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-        // Decorative formatting but compact to avoid layout shifts
-        display.textContent = `${days}d ${String(hours).padStart(2,'0')}h ${String(minutes).padStart(2,'0')}m ${String(seconds).padStart(2,'0')}s`;
-      };
-
-      tick(); // immediate
-      const intervalId = setInterval(() => {
-        // If countdown is over, clear interval
-        if (Date.now() >= target) {
-          clearInterval(intervalId);
-        }
-        tick();
-      }, 1000);
-
-      // Lightweight confetti generation inside banner — small number and non-invasive
-      const banner = document.querySelector('.birthday-banner');
-      if (!banner) return;
-      const colors = ['#ffffff', '#c62828', '#2e7d32', '#ffd700'];
-      for (let i = 0; i < 14; i++) {
-        const c = document.createElement('div');
-        c.className = 'confetti-piece';
-        c.style.backgroundColor = colors[i % colors.length];
-        c.style.left = (5 + Math.random() * 90) + '%';
-        c.style.top = (-5 - Math.random() * 30) + 'px';
-        c.style.width = (6 + Math.random() * 8) + 'px';
-        c.style.height = (8 + Math.random() * 10) + 'px';
-        c.style.borderRadius = (Math.random() > 0.5 ? '2px' : '50%');
-        c.style.animationDuration = (2.5 + Math.random() * 2.5) + 's';
-        c.style.animationDelay = (Math.random() * 2) + 's';
-        banner.appendChild(c);
-
-        // remove after animation (cleanup)
-        setTimeout(() => {
-          c.remove();
-        }, 8000);
-      }
-    }
-
-    // Ensure original loadData and updateTimes happen before adding countdown so times are correct immediately
     loadData();
-    startBirthdayCountdown();
   </script>
 </body>
 </html>
